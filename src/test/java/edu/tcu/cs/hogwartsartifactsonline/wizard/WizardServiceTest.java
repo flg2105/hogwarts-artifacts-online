@@ -1,6 +1,8 @@
 
 package edu.tcu.cs.hogwartsartifactsonline.wizard;
 
+import edu.tcu.cs.hogwartsartifactsonline.artifact.Artifact;
+import edu.tcu.cs.hogwartsartifactsonline.artifact.ArtifactRepository;
 import edu.tcu.cs.hogwartsartifactsonline.system.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +28,9 @@ class WizardServiceTest {
 
     @Mock
     WizardRepository wizardRepository;
+
+    @Mock
+    ArtifactRepository artifactRepository;
 
     @InjectMocks
     WizardService wizardService;
@@ -192,6 +197,58 @@ class WizardServiceTest {
 
         // Then
         verify(this.wizardRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testAssignArtifactErrorWithNonExistentWizardId() {
+        Artifact a = new Artifact();
+        a.setId("125080601744904192");
+        a.setDescription("An invisibility cloak is used to make the wearer invisible.");
+        a.setImageUrl("ImageUrl");
+
+        Wizard w2 = new Wizard();
+        w2.setId(2);
+        w2.setName("Harry Potter");
+        w2.addArtifact(a);
+
+        Wizard w3 = new Wizard();
+        w3.setId(3);
+        w3.setName("Neville Longbottom");
+
+        given(this.artifactRepository.findById("125080601744904192")).willReturn(Optional.of(a));
+        given(this.wizardRepository.findById(3)).willReturn(Optional.of(w3));
+
+        Throwable thrown = assertThrows(ObjectNotFoundException.class, () -> {
+
+        });
+
+        assertThat(thrown)
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Could not find wizard with Id  :(");
+        assertThat(a.getOwner().getId()).isEqualTo(3);
+
+        this.wizardService.assignArtifact(3, "125080601744904192");
+
+         assertThat(a.getOwner().getId()).isEqualTo(3);
+         assertThat(w3.getArtifacts()).contains(a);
+
+    }
+
+    @Test
+    void testAssignArtifactErrorWithNonExistentArtifactId() {
+
+
+        given(this.artifactRepository.findById("125080601744904192")).willReturn(Optional.empty());
+
+        Throwable thrown = assertThrows(ObjectNotFoundException.class, () -> {
+            this.wizardService.assignArtifact(3, "125080601744904192");
+        });
+
+        assertThat(thrown)
+        .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Could not find artifact with Id 125080601744904192 :(");
+
+
     }
 
 }

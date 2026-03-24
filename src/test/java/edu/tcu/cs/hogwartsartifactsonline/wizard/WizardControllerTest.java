@@ -1,6 +1,5 @@
 package edu.tcu.cs.hogwartsartifactsonline.wizard;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tcu.cs.hogwartsartifactsonline.artifact.Artifact;
 import edu.tcu.cs.hogwartsartifactsonline.system.StatusCode;
 import edu.tcu.cs.hogwartsartifactsonline.system.exception.ObjectNotFoundException;
@@ -11,11 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +28,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
-class WizardControllerTest {
+@org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc(addFilters = false)
+class
+WizardControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper;
+    tools.jackson.databind.ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     WizardService wizardService;
 
     List<Wizard> wizards;
@@ -237,6 +238,39 @@ class WizardControllerTest {
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find wizard with Id 5 :("))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void testAssignArtifactSuccess() throws Exception {
+        doNothing().when(this.wizardService).assignArtifact(2, "1250808601744904191");
+
+        this.mockMvc.perform(put(this.baseUrl + "/wizards/2/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Artifact Assignment Success"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void testAssignArtifactErrorWithNonExistentWizardID() throws Exception {
+        doThrow(new ObjectNotFoundException("wizard", 5)).when(this.wizardService).assignArtifact(5, "1250808601744904191");
+
+        this.mockMvc.perform(put(this.baseUrl + "/wizards/5/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Could not find wizard with Id 5 :("))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void testAssignArtifactErrorWithNonExistentArtifactID() throws Exception {
+        doThrow(new ObjectNotFoundException("artifact", "1250808601744904199")).when(this.wizardService).assignArtifact(2, "1250808601744904199");
+
+        this.mockMvc.perform(put(this.baseUrl + "/wizards/2/artifacts/1250808601744904199").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Could not find artifact with Id 1250808601744904199 :("))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
