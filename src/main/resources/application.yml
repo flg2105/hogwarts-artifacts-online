@@ -1,5 +1,3 @@
-spring.application.name=hogwarts-artifacts-online
-
 spring:
   datasource:
     url: jdbc:h2:mem:hogwarts
