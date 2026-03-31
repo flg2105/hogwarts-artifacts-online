@@ -11,6 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,13 +121,13 @@ class ArtifactServiceTest {
     @Test
     void testFindAllSuccess() {
         // Given
-        given(this.artifactRepository.findAll()).willReturn(this.artifacts);
+        given(this.artifactRepository.findAll(Mockito.any(Pageable.class))).willReturn(new PageImpl<>(this.artifacts));
 
         // When
-        List<Artifact> actualArtifacts = this.artifactService.findAll();
+        Page<Artifact> actualArtifacts = this.artifactService.findAll(Pageable.unpaged());
 
         // Then
-        assertThat(actualArtifacts.size()).isEqualTo(this.artifacts.size());
+        assertThat(actualArtifacts.getContent().size()).isEqualTo(this.artifacts.size());
         verify(this.artifactRepository, times(1)).findAll();
     }
 

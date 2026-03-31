@@ -3,9 +3,10 @@ package edu.tcu.cs.hogwartsartifactsonline.artifact;
 import edu.tcu.cs.hogwartsartifactsonline.artifact.utils.IdWorker;
 import edu.tcu.cs.hogwartsartifactsonline.system.exception.ObjectNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @Transactional
@@ -26,8 +27,8 @@ public class ArtifactService {
                 .orElseThrow(() -> new ObjectNotFoundException("artifact", artifactId));
     }
 
-    public List<Artifact> findAll() {
-        return this.artifactRepository.findAll();
+    public Page<Artifact> findAll(Pageable pageable){
+        return this.artifactRepository.findAll(pageable);
     }
 
     public Artifact save(Artifact newArtifact) {

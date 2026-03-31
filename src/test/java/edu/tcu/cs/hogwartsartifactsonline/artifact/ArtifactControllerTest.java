@@ -1,5 +1,6 @@
 package edu.tcu.cs.hogwartsartifactsonline.artifact;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tcu.cs.hogwartsartifactsonline.artifact.dto.ArtifactDto;
 import edu.tcu.cs.hogwartsartifactsonline.system.StatusCode;
 import edu.tcu.cs.hogwartsartifactsonline.system.exception.ObjectNotFoundException;
@@ -10,10 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,21 +31,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
-@org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class ArtifactControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    @MockitoBean
+    @MockBean
     ArtifactService artifactService;
 
     @Autowired
-    tools.jackson.databind.ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     List<Artifact> artifacts;
 
-    @Value("${api.endpoint.base-url}") // Spring will go to application.yml to find the value and inject into this field.
+    @Value("${api.endpoint.base-url}")
     String baseUrl;
 
 
@@ -125,7 +130,8 @@ class ArtifactControllerTest {
     @Test
     void testFindAllArtifactsSuccess() throws Exception {
         // Given
-        given(this.artifactService.findAll()).willReturn(this.artifacts);
+        Page<Artifact> artifactPage = new PageImpl<>(this.artifacts);
+        given(this.artifactService.findAll(Mockito.any(Pageable.class))).willReturn(artifactPage);
 
         // When and then
         this.mockMvc.perform(get(this.baseUrl + "/artifacts").accept(MediaType.APPLICATION_JSON))

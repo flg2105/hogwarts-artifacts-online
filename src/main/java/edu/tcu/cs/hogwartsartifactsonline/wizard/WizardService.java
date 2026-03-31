@@ -41,12 +41,12 @@ public class WizardService {
                     oldWizard.setName(update.getName());
                     return this.wizardRepository.save(oldWizard);
                 })
-                .orElseThrow(() -> new ObjectNotFoundException("wizards", wizardId));
+                .orElseThrow(() -> new ObjectNotFoundException("wizard", wizardId));
     }
 
     public void delete(Integer wizardId) {
         Wizard wizardToBeDeleted = this.wizardRepository.findById(wizardId)
-                .orElseThrow(() -> new ObjectNotFoundException("wizards", wizardId));
+                .orElseThrow(() -> new ObjectNotFoundException("wizard", wizardId));
 
         wizardToBeDeleted.removeAllArtifacts();
         this.wizardRepository.deleteById(wizardId);
