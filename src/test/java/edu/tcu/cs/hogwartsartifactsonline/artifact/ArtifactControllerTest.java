@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
@@ -144,6 +145,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testAddArtifactSuccess() throws Exception {
         // Given
         ArtifactDto artifactDto = new ArtifactDto(null,
@@ -173,6 +175,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testUpdateArtifactSuccess() throws Exception {
         // Given
         ArtifactDto artifactDto = new ArtifactDto("1250808601744904192",
@@ -202,6 +205,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testUpdateArtifactErrorWithNonExistentId() throws Exception {
         // Given
         ArtifactDto artifactDto = new ArtifactDto("1250808601744904192",
@@ -222,6 +226,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testDeleteArtifactSuccess() throws Exception {
         // Given
         doNothing().when(this.artifactService).delete("1250808601744904191");
@@ -235,6 +240,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testDeleteArtifactErrorWithNonExistentId() throws Exception {
         // Given
         doThrow(new ObjectNotFoundException("artifact", "1250808601744904191")).when(this.artifactService).delete("1250808601744904191");
