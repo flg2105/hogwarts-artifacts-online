@@ -128,7 +128,7 @@ class ArtifactServiceTest {
 
         // Then
         assertThat(actualArtifacts.getContent().size()).isEqualTo(this.artifacts.size());
-        verify(this.artifactRepository, times(1)).findAll();
+        verify(this.artifactRepository, times(1)).findAll(Mockito.any(Pageable.class));
     }
 
     @Test
