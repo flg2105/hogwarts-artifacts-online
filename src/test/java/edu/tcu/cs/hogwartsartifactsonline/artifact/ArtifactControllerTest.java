@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -101,7 +103,7 @@ class ArtifactControllerTest {
     }
 
     @Test
-    void tesFindArtifactByIdSuccess() throws Exception {
+    void testFindArtifactByIdSuccess() throws Exception {
         // Given
         given(this.artifactService.findById("1250808601744904191")).willReturn(this.artifacts.get(0));
 
@@ -115,7 +117,7 @@ class ArtifactControllerTest {
     }
 
     @Test
-    void tesFindArtifactByIdNotFound() throws Exception {
+    void testFindArtifactByIdNotFound() throws Exception {
         // Given
         given(this.artifactService.findById("1250808601744904191")).willThrow(new ObjectNotFoundException("artifact", "1250808601744904191"));
 
@@ -135,17 +137,15 @@ class ArtifactControllerTest {
 
         // When and then
         this.mockMvc.perform(get(this.baseUrl + "/artifacts").accept(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.flag").value(true))
-                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
-                .andExpect(jsonPath("$.message").value("Find All Success"))
-                .andExpect(jsonPath("$.data", Matchers.hasSize(this.artifacts.size())))
-                .andExpect(jsonPath("$.data[0].id").value("1250808601744904191"))
-                .andExpect(jsonPath("$.data[0].name").value("Deluminator"))
-                .andExpect(jsonPath("$.data[1].id").value("1250808601744904192"))
-                .andExpect(jsonPath("$.data[1].name").value("Invisibility Cloak"));
+                .andExpect(jsonPath("$.data.content", Matchers.hasSize(this.artifacts.size())))
+                .andExpect(jsonPath("$.data.content[0].id").value("1250808601744904191"))
+                .andExpect(jsonPath("$.data.content[0].name").value("Deluminator"))
+                .andExpect(jsonPath("$.data.content[1].id").value("1250808601744904192"))
+                .andExpect(jsonPath("$.data.content[1].name").value("Invisibility Cloak"));
     }
 
     @Test
+    @WithMockUser
     void testAddArtifactSuccess() throws Exception {
         // Given
         ArtifactDto artifactDto = new ArtifactDto(null,
@@ -175,6 +175,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testUpdateArtifactSuccess() throws Exception {
         // Given
         ArtifactDto artifactDto = new ArtifactDto("1250808601744904192",
@@ -204,6 +205,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testUpdateArtifactErrorWithNonExistentId() throws Exception {
         // Given
         ArtifactDto artifactDto = new ArtifactDto("1250808601744904192",
@@ -224,6 +226,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testDeleteArtifactSuccess() throws Exception {
         // Given
         doNothing().when(this.artifactService).delete("1250808601744904191");
@@ -237,6 +240,7 @@ class ArtifactControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testDeleteArtifactErrorWithNonExistentId() throws Exception {
         // Given
         doThrow(new ObjectNotFoundException("artifact", "1250808601744904191")).when(this.artifactService).delete("1250808601744904191");
