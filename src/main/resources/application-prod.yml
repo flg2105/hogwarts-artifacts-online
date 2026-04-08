@@ -1,7 +1,7 @@
 spring:
   cloud:
     azure:
-      keyvault:
+      key vault:
         secret:
           property-sources[0]:
             endpoint: ${AZURE_KEY_VAULT_ENDPOINT}
