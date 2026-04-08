@@ -8,6 +8,9 @@ import edu.tcu.cs.hogwartsartifactsonline.system.StatusCode;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.PageImpl;
 
 import org.springframework.data.domain.Pageable;
 
@@ -38,9 +41,18 @@ public class ArtifactController {
     @GetMapping
     public Result findAllArtifacts(Pageable pageable) {
         Page<Artifact> artifactPage = this.artifactService.findAll(pageable);
-        Page<ArtifactDto> artifactDtoPage = artifactPage
-                .map(this.artifactToArtifactDtoConverter::convert);
-        return new Result(true, StatusCode.SUCCESS, "Find All Success", artifactDtoPage);
+        List<ArtifactDto> artifactDtos = artifactPage.getContent().stream()
+                .map(this.artifactToArtifactDtoConverter::convert)
+                .collect(Collectors.toList());
+
+        java.util.Map<String, Object> pageData = new java.util.HashMap<>();
+        pageData.put("content", artifactDtos);
+        pageData.put("totalElements", artifactPage.getTotalElements());
+        pageData.put("totalPages", artifactPage.getTotalPages());
+        pageData.put("number", artifactPage.getNumber());
+        pageData.put("size", artifactPage.getSize());
+
+        return new Result(true, StatusCode.SUCCESS, "Find All Success", pageData);
     }
 
     @PostMapping

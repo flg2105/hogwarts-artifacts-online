@@ -211,5 +211,5 @@ class UserControllerTest {
         this.mockMvc.perform(delete(this.baseUrl + "/users/5").accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
-                .andExpect(jsonPath("$.message").value("Could not find "));
+                .andExpect(jsonPath("$.message").value("Could not find user with Id 5 :("));
     }}
