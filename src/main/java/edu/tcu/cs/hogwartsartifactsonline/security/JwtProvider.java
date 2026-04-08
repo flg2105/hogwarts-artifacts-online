@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtProvider {
 
-    private JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtEncoder;
 
     public JwtProvider(JwtEncoder jwtEncoder) {
         this.jwtEncoder = jwtEncoder;
